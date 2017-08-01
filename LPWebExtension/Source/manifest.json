@@ -1,0 +1,17 @@
+{"manifest_version": 2,"name": "LPServices",
+  "description": "Add new a context menu options for using LPServices.",
+  "version": "1.0",
+
+  "background": {
+    "scripts": [
+      "contextMenuController.js"
+    ]
+  },
+
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "clipboardWrite",
+    "<all_urls>"
+  ]
+}
