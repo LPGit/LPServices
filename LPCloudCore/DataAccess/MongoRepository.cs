@@ -178,7 +178,49 @@ namespace LPCloudCore.DataAccess
             return t.Any();
         }
 
+        #region IQueryable<T>
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>An IEnumerator&lt;T&gt; object that can be used to iterate through the collection.</returns>
+        public virtual IEnumerator<T> GetEnumerator()
+        {
+            return this.collection.AsQueryable<T>().GetEnumerator();
+        }
 
+        /// <summary>
+        /// Returns an enumerator that iterates through a collection.
+        /// </summary>
+        /// <returns>An IEnumerator object that can be used to iterate through the collection.</returns>
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.collection.AsQueryable<T>().GetEnumerator();
+        }
+
+        /// <summary>
+        /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of IQueryable is executed.
+        /// </summary>
+        public virtual Type ElementType
+        {
+            get { return this.collection.AsQueryable<T>().ElementType; }
+        }
+
+        /// <summary>
+        /// Gets the expression tree that is associated with the instance of IQueryable.
+        /// </summary>
+        public virtual Expression Expression
+        {
+            get { return this.collection.AsQueryable<T>().Expression; }
+        }
+
+        /// <summary>
+        /// Gets the query provider that is associated with this data source.
+        /// </summary>
+        public virtual IQueryProvider Provider
+        {
+            get { return this.collection.AsQueryable<T>().Provider; }
+        }
+        #endregion
 
     }
 

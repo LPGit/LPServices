@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LPCloudCore.DataAccess
 {
-    public interface IRepository<TEntity, TKey> where TEntity : IEntity<TKey>
+    public interface IRepository<TEntity, TKey> : IQueryable<TEntity> where TEntity : IEntity<TKey>
     {
         TEntity GetById(TKey id);
         Task<TEntity> GetByIdAsync(TKey id);
