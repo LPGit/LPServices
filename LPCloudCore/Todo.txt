@@ -1,0 +1,2 @@
+﻿- test if Insert return instance with new id
+- write tests
