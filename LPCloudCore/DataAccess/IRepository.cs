@@ -12,6 +12,7 @@ namespace LPCloudCore.DataAccess
     public interface IRepository<TEntity, TKey> where TEntity : IEntity<TKey>
     {
         TEntity GetById(TKey id);
+        Task<TEntity> GetByIdAsync(TKey id);
 
         TEntity Add(TEntity entity);
         Task<TEntity> AddAsync(TEntity entity);
@@ -25,11 +26,11 @@ namespace LPCloudCore.DataAccess
 
         void Delete(TKey id);
         void Delete(TEntity entity);
-        void Delete(Expression<Func<TEntity, bool>> predicate);
+        void DeleteMany(Expression<Func<TEntity, bool>> predicate);
 
         Task DeleteAsync(TKey id);
         Task DeleteAsync(TEntity entity);
-        Task DeleteAsync(Expression<Func<TEntity, bool>> predicate);
+        Task DeleteManyAsync(Expression<Func<TEntity, bool>> predicate);
 
         long Count();
         Task<long> CountAsync();

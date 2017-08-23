@@ -50,6 +50,14 @@ namespace LPCloudCore.DataAccess
             return this.collection.Find(filter).FirstOrDefault();
         }
 
+        public virtual async Task<T> GetByIdAsync(TKey id)
+        {
+            var filter = Builders<T>.Filter.Eq("_id", id);
+            var item = await this.collection.FindAsync(filter).ConfigureAwait(false);
+
+            return item.FirstOrDefault();
+        }
+
         /// <summary>
         /// Adds the new entity in the repository.
         /// </summary>
@@ -128,9 +136,9 @@ namespace LPCloudCore.DataAccess
             this.Delete(entity.Id);
         }
 
-        public virtual void Delete(Expression<Func<T, bool>> predicate)
+        public virtual void DeleteMany(Expression<Func<T, bool>> predicate)
         {
-            this.Delete(predicate);
+            this.collection.DeleteMany(predicate);
         }
 
         public virtual Task DeleteAsync(TKey id)
@@ -143,9 +151,9 @@ namespace LPCloudCore.DataAccess
             return this.DeleteAsync(entity.Id);
         }
 
-        public virtual Task DeleteAsync(Expression<Func<T, bool>> predicate)
+        public virtual Task DeleteManyAsync(Expression<Func<T, bool>> predicate)
         {
-            return this.collection.DeleteOneAsync(predicate);
+            return this.collection.DeleteManyAsync(predicate);
         }
 
         public virtual long Count()

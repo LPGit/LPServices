@@ -1,2 +1,5 @@
 ﻿- test if Insert return instance with new id
 - write tests
+- configure await
+- implement iquerayble
+- check if i really don't have to check for Entity vs Entity<T>

@@ -34,7 +34,8 @@ namespace LPCloudCore.DataAccess
             {
                 throw new ArgumentException("Collection name cannot be empty for this entity.");
             }
-            return collectionName.ToLower() + "s";
+            //return collectionName.ToLower() + "s";
+            return collectionName + "s";
         }
 
     }

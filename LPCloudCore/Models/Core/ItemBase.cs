@@ -11,6 +11,8 @@ namespace LPCloudCore.Models.Core
         public virtual DateTime CreatedDate { get => createdDateUtc.ToLocalTime(); set => this.createdDateUtc = value.ToUniversalTime(); }
         private DateTime createdDateUtc;
 
+        public bool IsActive { get; set; } = true;
+
         public ICollection<string> Tags { get; set; }
     }
 }

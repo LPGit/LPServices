@@ -5,7 +5,7 @@ using MongoDB.Bson;
 
 namespace LPCloudCore.Models.Core
 {
-    public abstract class Entity : IEntity<ObjectId>
+    public abstract class Entity : IEntity
     {
         public ObjectId Id { get; set; }
 
