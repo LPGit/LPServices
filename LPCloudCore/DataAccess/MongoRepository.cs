@@ -72,7 +72,7 @@ namespace LPCloudCore.DataAccess
 
         public virtual async Task<T> AddAsync(T entity)
         {
-            await this.collection.InsertOneAsync(entity);
+            await this.collection.InsertOneAsync(entity).ConfigureAwait(false);
             return entity;
         }
 
@@ -106,7 +106,7 @@ namespace LPCloudCore.DataAccess
         public virtual async Task<T> UpdateAsync(T entity)
         {
             var filter = Builders<T>.Filter.Eq("_id", entity.Id);
-            await this.collection.ReplaceOneAsync(filter, entity, new UpdateOptions() { IsUpsert = true });
+            await this.collection.ReplaceOneAsync(filter, entity, new UpdateOptions() { IsUpsert = true }).ConfigureAwait(false);
 
             return entity;
         }
@@ -174,7 +174,7 @@ namespace LPCloudCore.DataAccess
 
         public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
         {
-            var t = await this.collection.FindAsync(predicate);
+            var t = await this.collection.FindAsync(predicate).ConfigureAwait(false);
             return t.Any();
         }
 
