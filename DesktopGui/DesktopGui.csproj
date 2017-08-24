@@ -118,5 +118,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LPCloudCore\LPCloudCore.csproj">
+      <Project>{6AF1964F-97CF-449B-B009-252653DEEE1E}</Project>
+      <Name>LPCloudCore</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

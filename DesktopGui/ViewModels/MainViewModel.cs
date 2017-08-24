@@ -1,4 +1,5 @@
-﻿using ReactiveUI;
+﻿using LPCloudCore.Helpers;
+using ReactiveUI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace DesktopGui.ViewModels
 
         private Unit OpenFile(FileResult x)
         {
-            Process.Start(x.Url);
+            Process.Start(x.FullName);
             return Unit.Default;
         }
 
@@ -80,12 +81,12 @@ namespace DesktopGui.ViewModels
                 .Select(x => tagRegex.Replace(HttpUtility.HtmlDecode(x.Value), ""));
 
             var items = titles.Zip(descriptions,
-                (t, d) => new FileResult { Title = t, Description = d }).ToArray();
+                (t, d) => new FileResult { Name = t, FullName = d }).ToArray();
 
             var urls = doc.Root.Descendants("{http://search.yahoo.com/mrss/}thumbnail")
                 .Select(x => x.Attributes("url").First().Value);
 
-            var ret = items.Zip(urls, (item, url) => { item.Url = url; return item; }).ToList();
+            var ret = items.Zip(urls, (item, url) => { item.FullName = url; return item; }).ToList();
             return ret;
         }
 
@@ -93,33 +94,21 @@ namespace DesktopGui.ViewModels
 
         private async Task<List<FileResult>> getSearchResult(string searchTerm)
         {
-          
+         
 
             var pattern = $"*{searchTerm}*";
-            ConcurrentQueue<FileResult> queue = new ConcurrentQueue<FileResult>();
 
-            List<Task> tasks = new List<Task>()
+            var tasks = new List<Task<List<FileInfo>>>()
             {
-                InternalCollectFiles(dir, pattern, queue),
-                InternalCollectFiles(dir2, pattern, queue, false)
+                IOTools.GetAllFiles(dir, pattern),
+                IOTools.GetAllFiles(dir2, pattern,  false)
             };
 
             await Task.WhenAll(tasks);
 
-            return queue.AsEnumerable().ToList();
+            return tasks.SelectMany(t => t.Result).Select(x => new FileResult() { FullName = x.FullName, Name = x.Name }).ToList();
+                     
         }
 
-        private async Task InternalCollectFiles(DirectoryInfo directory, string pattern, ConcurrentQueue<FileResult> queue, bool searchSubdirectories = true)
-        {
-            foreach (var result in directory.GetFiles(pattern))
-                queue.Enqueue(new FileResult() { Title = result.Name, Url = result.FullName });
-
-            if (!searchSubdirectories)
-                return;
-
-            await Task.WhenAll(directory
-                 .GetDirectories()
-                 .Select(dir => Task.Run(() => InternalCollectFiles(dir, pattern, queue))).ToArray()).ConfigureAwait(false);
-        }
     }
 }
