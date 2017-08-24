@@ -6,6 +6,8 @@ using System.Text;
 
 namespace UnitTests
 {
+    [TestClass]
+
     public class DatabaseManagement
     {
         [TestMethod]
