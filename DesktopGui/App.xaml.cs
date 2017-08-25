@@ -13,5 +13,12 @@ namespace DesktopGui
     /// </summary>
     public partial class App : Application
     {
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            var mw = new MainWindow();
+            var bootstrapper = new AppBootstrapper();
+            bootstrapper.Initialize();
+            mw.Show();
+        }
     }
 }

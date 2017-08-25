@@ -1,5 +1,6 @@
 ﻿using LPCloudCore.Models.Core;
 using MongoDB.Bson;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,8 @@ namespace LPCloudCore.DataAccess
     {
         TEntity GetById(TKey id);
         Task<TEntity> GetByIdAsync(TKey id);
+
+        Task<List<T>> GetFilteredAsync(Expression<Func<TEntity, bool>> predicate);
 
         TEntity Add(TEntity entity);
         Task<TEntity> AddAsync(TEntity entity);

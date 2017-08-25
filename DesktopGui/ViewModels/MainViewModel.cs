@@ -1,4 +1,6 @@
-﻿using LPCloudCore.Helpers;
+﻿using LPCloudCore.DataAccess;
+using LPCloudCore.Helpers;
+using LPCloudCore.Models.Primitives;
 using ReactiveUI;
 using System;
 using System.Collections.Concurrent;
@@ -34,6 +36,11 @@ namespace DesktopGui.ViewModels
         public ReactiveCommand ExecuteCommand => this._ExecuteCommand;
         private ReactiveCommand<FileResult, Unit> _ExecuteCommand;
 
+        public ReactiveCommand AddFolderCommand => this.addFolderCommand;
+        private ReactiveCommand addFolderCommand;
+
+        public ReactiveList<DirectoryVM> Folders { get; set; }
+
         public MainViewModel()
         {
             this.ExecuteSearch = ReactiveCommand.CreateFromTask<string, List<FileResult>>(x => this.getSearchResult(x));
@@ -42,6 +49,18 @@ namespace DesktopGui.ViewModels
                 .Throttle(TimeSpan.FromMilliseconds(800), RxApp.MainThreadScheduler)
                 .Select(x => x?.Trim())
                 .DistinctUntilChanged()
+                .Where(x => !String.IsNullOrWhiteSpace(x))
+                .InvokeCommand(ExecuteSearch);
+
+            this.Folders = new ReactiveList<DirectoryVM>() { ChangeTrackingEnabled = true };
+
+
+            var foldersChanged = Observable.Merge(
+                this.Folders.Changed.Select(x => Unit.Default),
+                this.Folders.ItemChanged.Select(x => Unit.Default)
+                )
+                .Throttle(TimeSpan.FromMilliseconds(800), RxApp.MainThreadScheduler)
+                .Select(x => this.SearchTerm?.Trim())
                 .Where(x => !String.IsNullOrWhiteSpace(x))
                 .InvokeCommand(ExecuteSearch);
 
@@ -56,6 +75,15 @@ namespace DesktopGui.ViewModels
             this._SearchResult = this.ExecuteSearch.ToProperty(this, x => x.SearchResult, new List<FileResult>());
 
             this._ExecuteCommand = ReactiveCommand.Create<FileResult, Unit>(x => OpenFile(x));
+
+            this.addFolderCommand = ReactiveCommand.Create(onAddFolderCommand);
+        }
+
+        private void onAddFolderCommand()
+        {
+            var d = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            if (d.ShowDialog() == true)
+                this.Folders.Add(new DirectoryVM() { Fullpath = d.SelectedPath });
         }
 
         private Unit OpenFile(FileResult x)
@@ -94,21 +122,50 @@ namespace DesktopGui.ViewModels
 
         private async Task<List<FileResult>> getSearchResult(string searchTerm)
         {
-         
 
-            var pattern = $"*{searchTerm}*";
+            var terms = searchTerm.Split(' ').Select(x => x.Trim().ToLower()).ToList();
 
-            var tasks = new List<Task<List<FileInfo>>>()
+            var pattern = $"*{terms.FirstOrDefault()}*";
+
+            var tasks = new List<Task<List<FileInfo>>>();
+            foreach (var d in Folders)
             {
-                IOTools.GetAllFiles(dir, pattern),
-                IOTools.GetAllFiles(dir2, pattern,  false)
+                tasks.Add(IOTools.GetAllFiles(new DirectoryInfo(d.Fullpath), pattern, d.IncludeSubfolders));
             };
 
             await Task.WhenAll(tasks);
 
-            return tasks.SelectMany(t => t.Result).Select(x => new FileResult() { FullName = x.FullName, Name = x.Name }).ToList();
-                     
+            var res = tasks.SelectMany(t => t.Result)
+                .Select(x => new FileResult() { FullName = x.FullName, Name = x.Name })
+                .ToList();
+
+            if (terms.Count() > 1)
+                return res.Where(x => x.Name.ToLower().Contains(terms)).ToList();
+
+            return res;            
+
         }
+
+        //private static IRepository<FileItem> repo = new MongoRepository<FileItem>();
+
+        //private async Task<List<FileResult>> getSearchResult3(string searchTerm)
+        //{
+
+        //    var terms = searchTerm.Split(' ').Select(x => x.Trim().ToLower()).ToList();
+
+        //    var pattern = $"*{terms.FirstOrDefault()}*";
+
+        //    var res = await repo.GetFilteredAsync(x=>x.Name.Contains(pattern));
+
+        //    //var res = tasks.SelectMany(t => t.Result)
+        //    //    .Select(x => new FileResult() { FullName = x.FullName, Name = x.Name })
+        //    //    .ToList();
+
+      
+
+        //    //return res;
+
+        //}
 
     }
 }

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using LPCloudCore.Models.Core;
 using MongoDB.Driver;
 using System.Threading.Tasks;
+using MongoDB.Driver.Linq;
 
 namespace LPCloudCore.DataAccess
 {
@@ -56,6 +57,11 @@ namespace LPCloudCore.DataAccess
             var item = await this.collection.FindAsync(filter).ConfigureAwait(false);
 
             return item.FirstOrDefault();
+        }
+
+        public Task<List<T>> GetFilteredAsync(Expression<Func<T, bool>> predicate)
+        {
+            return this.collection.AsQueryable().Where(predicate).ToListAsync();
         }
 
         /// <summary>
@@ -196,6 +202,7 @@ namespace LPCloudCore.DataAccess
         {
             return this.collection.AsQueryable<T>().GetEnumerator();
         }
+
 
         /// <summary>
         /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of IQueryable is executed.
