@@ -15,7 +15,7 @@ namespace LPCloudCore.DataAccess
         TEntity GetById(TKey id);
         Task<TEntity> GetByIdAsync(TKey id);
 
-        Task<List<T>> GetFilteredAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<List<TEntity>> GetFilteredAsync(Expression<Func<TEntity, bool>> predicate);
 
         TEntity Add(TEntity entity);
         Task<TEntity> AddAsync(TEntity entity);
@@ -42,7 +42,7 @@ namespace LPCloudCore.DataAccess
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
     }
 
-    public interface IRepository<TEntity> : IRepository<TEntity, ObjectId> where TEntity : IEntity
+    public interface IRepository<TEntity> : IRepository<TEntity, string> where TEntity : IEntity
     {
     }
 }

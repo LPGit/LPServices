@@ -207,7 +207,7 @@ namespace UnitTests
             var items = new List<TodoItem>() { todo00, todo01, todo02, todo03 };
 
             repo.Add(items);
-            var ids = new List<ObjectId>();
+            var ids = new List<string>();
             foreach (var t in items)
             {
                 ids.Add(t.Id);
@@ -237,7 +237,7 @@ namespace UnitTests
             var items = new List<TodoItem>() { todo00, todo01, todo02, todo03 };
 
             repo.Add(items);
-            var ids = new List<ObjectId>();
+            var ids = new List<string>();
             foreach (var t in items)
             {
                 ids.Add(t.Id);

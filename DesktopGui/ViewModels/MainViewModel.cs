@@ -142,30 +142,27 @@ namespace DesktopGui.ViewModels
             if (terms.Count() > 1)
                 return res.Where(x => x.Name.ToLower().Contains(terms)).ToList();
 
-            return res;            
+            return res;
 
         }
 
-        //private static IRepository<FileItem> repo = new MongoRepository<FileItem>();
+        private static IRepository<FileItem> repo = new MongoRepository<FileItem>();
 
-        //private async Task<List<FileResult>> getSearchResult3(string searchTerm)
-        //{
+        private async Task<List<FileResult>> getSearchResult3(string searchTerm)
+        {
 
-        //    var terms = searchTerm.Split(' ').Select(x => x.Trim().ToLower()).ToList();
+            var terms = searchTerm.Split(' ').Select(x => x.Trim().ToLower()).ToList();
 
-        //    var pattern = $"*{terms.FirstOrDefault()}*";
+            var pattern = $"{terms.FirstOrDefault()}";
 
-        //    var res = await repo.GetFilteredAsync(x=>x.Name.Contains(pattern));
+            var res = await repo.GetFilteredAsync(x => x.Name.ToLower().Contains(pattern));
 
-        //    //var res = tasks.SelectMany(t => t.Result)
-        //    //    .Select(x => new FileResult() { FullName = x.FullName, Name = x.Name })
-        //    //    .ToList();
 
-      
+            return res
+               .Select(x => new FileResult() { FullName = x.Fullpath, Name = x.Name })
+               .ToList();
 
-        //    //return res;
-
-        //}
+        }
 
     }
 }

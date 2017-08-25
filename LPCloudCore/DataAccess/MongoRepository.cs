@@ -9,6 +9,7 @@ using LPCloudCore.Models.Core;
 using MongoDB.Driver;
 using System.Threading.Tasks;
 using MongoDB.Driver.Linq;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace LPCloudCore.DataAccess
 {
@@ -36,6 +37,25 @@ namespace LPCloudCore.DataAccess
             this.dbProvider = dbProvider;
             this.collectionName = MongoDBHelpers<TKey>.GetCollectionName<T>();
             this.collection = this.dbProvider.Database.GetCollection<T>(collectionName);
+
+            var attribute = typeof(Entity).GetProperty(nameof(Entity.Id)).GetCustomAttributes(typeof(BsonRepresentationAttribute), false).FirstOrDefault() as BsonRepresentationAttribute;
+
+            this.forceObjectIdKey =
+                typeof(TKey) == typeof(string)
+                && typeof(T).IsSubclassOf(typeof(Entity))
+                && attribute != null
+                && attribute.Representation == BsonType.ObjectId;
+        }
+
+        // helper stuff because internally Entity is using string as key but mongodb is using objecid
+        private bool forceObjectIdKey = false;
+
+        private object createBackendId(TKey id)
+        {
+            if (forceObjectIdKey)
+                return ObjectId.Parse(id as string);
+
+            return id;
         }
 
 
@@ -47,13 +67,15 @@ namespace LPCloudCore.DataAccess
         /// <returns>The Entity T.</returns>
         public virtual T GetById(TKey id)
         {
-            var filter = Builders<T>.Filter.Eq("_id", id);
+            var filter = Builders<T>.Filter.Eq("_id", createBackendId(id));
             return this.collection.Find(filter).FirstOrDefault();
         }
 
+
+
         public virtual async Task<T> GetByIdAsync(TKey id)
         {
-            var filter = Builders<T>.Filter.Eq("_id", id);
+            var filter = Builders<T>.Filter.Eq("_id", createBackendId(id));
             var item = await this.collection.FindAsync(filter).ConfigureAwait(false);
 
             return item.FirstOrDefault();
@@ -64,11 +86,6 @@ namespace LPCloudCore.DataAccess
             return this.collection.AsQueryable().Where(predicate).ToListAsync();
         }
 
-        /// <summary>
-        /// Adds the new entity in the repository.
-        /// </summary>
-        /// <param name="entity">The entity T.</param>
-        /// <returns>The added entity including its new ObjectId.</returns>
         public virtual T Add(T entity)
         {
             this.collection.InsertOne(entity);
@@ -82,10 +99,6 @@ namespace LPCloudCore.DataAccess
             return entity;
         }
 
-        /// <summary>
-        /// Adds the new entities in the repository.
-        /// </summary>
-        /// <param name="entities">The entities of type T.</param>
         public virtual void Add(IEnumerable<T> entities)
         {
             this.collection.InsertMany(entities);
@@ -96,14 +109,10 @@ namespace LPCloudCore.DataAccess
             return this.collection.InsertManyAsync(entities);
         }
 
-        /// <summary>
-        /// Upserts an entity.
-        /// </summary>
-        /// <param name="entity">The entity.</param>
-        /// <returns>The updated entity.</returns>
+
         public virtual T Update(T entity)
         {
-            var filter = Builders<T>.Filter.Eq("_id", entity.Id);
+            var filter = Builders<T>.Filter.Eq("_id", createBackendId(entity.Id));
             this.collection.ReplaceOne(filter, entity, new UpdateOptions() { IsUpsert = true });
 
             return entity;
@@ -111,16 +120,12 @@ namespace LPCloudCore.DataAccess
 
         public virtual async Task<T> UpdateAsync(T entity)
         {
-            var filter = Builders<T>.Filter.Eq("_id", entity.Id);
+            var filter = Builders<T>.Filter.Eq("_id", createBackendId(entity.Id));
             await this.collection.ReplaceOneAsync(filter, entity, new UpdateOptions() { IsUpsert = true }).ConfigureAwait(false);
 
             return entity;
         }
 
-        /// <summary>
-        /// Upserts the entities.
-        /// </summary>
-        /// <param name="entities">The entities to update.</param>
         public virtual void Update(IEnumerable<T> entities)
         {
             foreach (T entity in entities)
@@ -134,7 +139,7 @@ namespace LPCloudCore.DataAccess
 
         public virtual void Delete(TKey id)
         {
-            this.collection.DeleteOne(Builders<T>.Filter.Eq("_id", id));
+            this.collection.DeleteOne(Builders<T>.Filter.Eq("_id", createBackendId(id)));
         }
 
         public virtual void Delete(T entity)
@@ -149,7 +154,7 @@ namespace LPCloudCore.DataAccess
 
         public virtual Task DeleteAsync(TKey id)
         {
-            return this.collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", id));
+            return this.collection.DeleteOneAsync(Builders<T>.Filter.Eq("_id", createBackendId(id)));
         }
 
         public virtual Task DeleteAsync(T entity)
@@ -231,7 +236,7 @@ namespace LPCloudCore.DataAccess
 
     }
 
-    public class MongoRepository<T> : MongoRepository<T, ObjectId>, IRepository<T> where T : IEntity
+    public class MongoRepository<T> : MongoRepository<T, string>, IRepository<T> where T : IEntity
     {
         /// <summary>
         /// Uses the default MongoDB database provider.

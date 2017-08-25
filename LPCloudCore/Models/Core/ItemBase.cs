@@ -14,5 +14,10 @@ namespace LPCloudCore.Models.Core
         public bool IsActive { get; set; } = true;
 
         public ICollection<string> Tags { get; set; }
+
+        public ItemBase()
+        {
+            this.createdDateUtc = DateTime.UtcNow;
+        }
     }
 }
