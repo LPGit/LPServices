@@ -88,7 +88,12 @@ namespace DesktopGui.ViewModels
 
         private Unit OpenFile(FileResult x)
         {
-            Process.Start(x.FullName);
+            try
+            {
+                Process.Start(x.FullName);
+            }
+            catch { }
+
             return Unit.Default;
         }
 
