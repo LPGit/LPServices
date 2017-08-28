@@ -44,5 +44,58 @@ namespace UnitTests
             repo.Add(items);
 
         }
+
+        [TestMethod]
+        public void AddTodoItems()
+        {
+            var repo = new MongoRepository<TodoItem>();
+
+            var t = new TodoItem()
+            {
+                Task = "Transfer Moneys",
+                Description = "Barclay needs my money..."
+            };
+            repo.Add(t);
+
+            t = new TodoItem()
+            {
+                Task = "Transfer Moneys",
+                Description = "Telekom needs my money..."
+            };
+            repo.Add(t);
+
+
+            t = new TodoItem()
+            {
+                Task = "Transfer Moneys",
+                Description = "Commdirect needs my money..."
+            };
+            repo.Add(t);
+
+
+            t = new TodoItem()
+            {
+                Task = "Sky",
+                Description = "Check the situation..."
+            };
+            repo.Add(t);
+
+
+            t = new TodoItem()
+            {
+                Task = "Initialize Game Development",
+                Description = "Talk with jochen..."
+            };
+            repo.Add(t);
+
+
+            t = new TodoItem()
+            {
+                Task = "Develop a roadmap",
+                Description = "Just do it!"
+            };
+            repo.Add(t);
+
+        }
     }
 }

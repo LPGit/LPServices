@@ -1,0 +1,4 @@
+- implement viewmodels
+- move search functions to backend
+- add todo view
+- implement db backup

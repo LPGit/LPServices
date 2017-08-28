@@ -96,6 +96,7 @@
     <Compile Include="AppBootstrapper.cs" />
     <Compile Include="ViewModels\DirectoryVM.cs" />
     <Compile Include="ViewModels\FileResult.cs" />
+    <Compile Include="ViewModels\Items\ItemBaseVM.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
